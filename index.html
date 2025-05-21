@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Maustian Ltda - E-commerce</title>
+  <!-- Google Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <!-- Favicon SVG Inline -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='15 15 70 70'><path d='M20 80 L40 40 L60 80 L80 40 L100 80' stroke='%2300A79D' stroke-width='12' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>" sizes="32x32">
+  <!-- MercadoPago SDK -->
+  <script src="https://sdk.mercadopago.com/js/v2"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Poppins', sans-serif; background: #f9f9f9; color: #333; }
+    .container { width: 90%; max-width: 1200px; margin: 0 auto; }
+    header { background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
+    .header__content { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; }
+    .logo svg { height: 50px; width: auto; }
+    .nav__list { list-style: none; display: flex; gap: 1.5rem; }
+    .nav__list a { text-decoration: none; color: #333; font-weight: 600; transition: color .3s; }
+    .nav__list a:hover { color: #00A79D; }
+    .cart-icon { position: relative; cursor: pointer; }
+    .cart-count { position: absolute; top: -5px; right: -10px; background: #00A79D; color: #fff; border-radius: 50%; padding: 2px 6px; font-size: 0.8rem; }
+    .hero { position: relative; background: linear-gradient(rgba(0,167,157,0.6),rgba(0,167,157,0.6)),url('hero-bg.jpg') center/cover no-repeat; color: #fff; text-align: center; padding: 6rem 1rem; }
+    .hero h1 { font-size: 3rem; font-weight: 600; margin-bottom: 1rem; }
+    .hero p { font-size: 1.25rem; max-width: 700px; margin: 0 auto 2rem; }
+    .btn { display: inline-block; padding: .85rem 2rem; background: #00A79D; color: #fff; text-decoration: none; border-radius: 30px; font-weight: 600; transition: background .3s; }
+    .btn:hover { background: #008f82; }
+    section { padding: 4rem 0; }
+    .products { background: #fff; }
+    .products h2 { text-align: center; font-size: 2rem; margin-bottom: 2rem; color: #00A79D; }
+    .products__grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(220px,1fr)); gap: 2rem; }
+    .product-card { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: transform .3s,box-shadow .3s; text-align: center; }
+    .product-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+    .product-card img { width: 100%;height:auto; }
+    .product-card-content { padding:1rem; }
+    .product-card h3, .product-card p.price { margin-bottom:.75rem; }
+    .product-card p.price { color:#00A79D;font-weight:600; }
+    .info-section { background:#fff; }
+    .info-section h2 { text-align:center;font-size:2rem;margin-bottom:2rem;color:#00A79D; }
+    .info-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:2rem;max-width:800px;margin:0 auto; }
+    .info-card { text-align:center;padding:1rem; }
+    .info-card h3 { font-size:1.25rem;margin-bottom:1rem;color:#333; }
+    .info-card p { color:#555;line-height:1.5; }
+    .cart-modal { position:fixed;top:60px;right:20px;background:#fff;border:1px solid #e0e0e0;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.1);width:300px;max-height:400px;overflow-y:auto;display:none;z-index:200; }
+    .cart-modal header { padding:1rem;border-bottom:1px solid #e0e0e0;font-weight:600; }
+    .cart-item { display:flex;justify-content:space-between;padding:0.75rem 1rem;border-bottom:1px solid #f0f0f0; }
+    .cart-item:last-child { border-bottom:none; }
+    .checkout-btn { width:calc(100%-2rem);margin:1rem;padding:0.75rem;background:#00A79D;color:#fff;border:none;border-radius:30px;font-weight:600;cursor:pointer; }
+    footer { background:#fff;padding:2rem 0;text-align:center;font-size:.9rem;color:#777; }
+    footer a { color:#00A79D;text-decoration:none; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container header__content">
+      <div class="logo">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 80 L40 40 L60 80 L80 40 L100 80" stroke="#00A79D" stroke-width="8" fill="none"/>
+          <path d="M40 40 L60 60 L80 40" stroke-width="7" fill="#FFFFFF"/>
+          <circle cx="60" cy="25" r="10" fill="#00A79D"/>
+        </svg>
+      </div>
+      <nav>
+        <ul class="nav__list">
+          <li><a href="#">Inicio</a></li>
+          <li><a href="#productos">Productos</a></li>
+          <li><a href="#info">Opciones de Compra y Entrega</a></li>
+          <li class="cart-icon" onclick="toggleCart()">🛒<span class="cart-count" id="cartCount">0</span></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <main>
+    <section class="hero">
+      <div class="container">
+        <h1>Descubre Belleza y Bienestar</h1>
+        <p>Los mejores artículos de cuidado personal y salud masculina en Chile, con calidad garantizada y entrega nacional.</p>
+        <a href="#productos" class="btn">Ver Productos</a>
+      </div>
+    </section>
+    <section id="productos" class="products container">
+      <h2>Productos Destacados</h2>
+      <div class="products__grid"></div>
+    </section>
+    <section id="info" class="info-section">
+      <div class="container">
+        <h2>Opciones de Compra y Entrega</h2>
+        <div class="info-grid">
+          <div class="info-card"><h3>Formas de Pago</h3><p>Aceptamos tarjetas de crédito, débito, transferencias bancarias y pagos en efectivo mediante WebPay y Khipu.</p></div>
+          <div class="info-card"><h3>Logística de Envío</h3><p>En la Región Metropolitana, recibe tu pedido en 24 horas; resto de Chile, entre 2-5 días hábiles. Envíos con Chilexpress y Starken.</p></div>
+        </div>
+      </div>
+    </section>
+    <div class="cart-modal" id="cartModal"><header>Tu Carro</header><div id="cartItems"></div><button class="checkout-btn" id="checkoutBtn">Proceder a Pago</button></div>
+  </main>
+  <footer>
+    <div class="container footer__content">
+      <p>&copy; 2025 Maustian Ltda. Todos los derechos reservados.</p>
+      <p><a href="#contacto">Contáctanos</a> | <a href="https://facebook.com/maustian" target="_blank">Facebook</a> | <a href="https://instagram.com/maustian" target="_blank">Instagram</a></p>
+    </div>
+  </footer>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      fetch('/api/products')
+        .then(res => res.json())
+        .then(items => {
+          const grid = document.querySelector('.products__grid');
+          items.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            card.dataset.id = item.id;
+            card.dataset.price = item.price;
+            card.dataset.title = item.title;
+            card.innerHTML = `
+              <img src="${item.thumbnail}" alt="${item.title}" />
+              <div class="product-card-content">
+                <h3>${item.title}</h3>
+                <p class="price">$${item.price.toLocaleString('es-CL')} CLP</p>
+                <button class="btn" onclick="addToCart(this)">Agregar al Carro</button>
+              </div>`;
+            grid.appendChild(card);
+          });
+        });
+    });
+    let cart = [];
+    function toggleCart() { const m=document.getElementById('cartModal'); m.style.display=m.style.display==='block'?'none':'block'; }
+    function addToCart(b) { const c=b.closest('.product-card'),id=c.dataset.id,title=c.dataset.title,price=parseFloat(c.dataset.price),e=cart.find(i=>i.id===id); e?e.qty++:cart.push({id,title,price,qty:1}); updateCartUI(); }
+    function updateCartUI() { const count=cart.reduce((s,i)=>s+i.qty,0); document.getElementById('cartCount').innerText=count; const d=document.getElementById('cartItems'); d.innerHTML=''; cart.forEach(i=>{ const e=document.createElement('div'); e.className='cart-item'; e.innerHTML=`<span>${i.title} x${i.qty}</span><span>$${(i.price*i.qty).toLocaleString('es-CL')}</span>`; d.appendChild(e); }); }
+    document.getElementById('checkoutBtn').addEventListener('click',()=>{
+      fetch('/api/create_preference',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({items:cart})})
+        .then(r=>r.json()).then(p=>window.location.href=p.init_point);
+    });
+  </script>
+</body>
+</html>
