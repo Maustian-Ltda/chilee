@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "env": {
+    "SELLER_ID": "5151462662405621",
+    "ML_ACCESS_TOKEN": "3GvwCKt7ExZc4IYMcCBt2aD2jpeb3MUh",
+    "MP_PUBLIC_KEY": "TEST-106b4090-202f-42cf-8033-054a08e15749",
+    "MP_ACCESS_TOKEN": "TEST-5799463110278132-052100-5537e52dfa3faf46ea400fd707483c3f-2332574274"
+  },
+  "builds": [
+    { "src": "api/*.js", "use": "BKZMNiQp7dIWr1FzX324xvMf/node" },
+    { "src": "index.html", "use": "BKZMNiQp7dIWr1FzX324xvMf/static" }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/$1.js" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ]
+}
